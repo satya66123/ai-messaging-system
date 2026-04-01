@@ -1,12 +1,15 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 from app.services.gmail_service import read_latest_email
 from app.services.ollama_service import generate_response
 from app.services.whatsapp_service import send_whatsapp_message
-from app.utils.rules import should_reply
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
+from fastapi import FastAPI
+from app.routes.automation_routes import router as automation_router
+
+
+
 
 templates = Jinja2Templates(directory="templates")
 
@@ -17,6 +20,8 @@ class PromptRequest(BaseModel):
     tone: str = "professional"  # optional
 
 app = FastAPI()
+
+app.include_router(automation_router)
 
 #@app.get("/")
 #def home():
@@ -56,35 +61,6 @@ def ai_whatsapp():
     }
 
 
-@app.get("/smart-automation")
-def smart_automation():
-    # Step 1: Read email
-    email = read_latest_email()
-
-    # Step 2: Apply rules
-    should_send, reason = should_reply(email)
-
-    if not should_send:
-        return {
-            "email": email,
-            "status": "skipped",
-            "reason": reason
-        }
-
-    # Step 3: Generate AI reply
-    ai_message = generate_response(
-        email,
-        "whatsapp",   # keep same for now
-        "friendly"
-    )
-
-    # 🚫 WhatsApp DISABLED (for now)
-    return {
-        "email": email,
-        "ai_message": ai_message,
-        "status": "generated_only",
-        "reason": reason
-    }
 
 @app.get("/full-automation")
 def full_automation():
