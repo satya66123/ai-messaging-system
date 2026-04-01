@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from app.services.gmail_service import read_latest_email
 from app.services.ollama_service import generate_response
 from app.services.whatsapp_service import send_whatsapp_message
-
+#from app.services.whatsapp_service import send_whatsapp_message
+from app.utils.rules import should_reply
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -46,6 +47,38 @@ def ai_whatsapp():
         "ai_message": ai_message,
         "status": "sent",
         "sid": sid
+
+    }
+
+
+@app.get("/smart-automation")
+def smart_automation():
+    # Step 1: Read email
+    email = read_latest_email()
+
+    # Step 2: Apply rules
+    should_send, reason = should_reply(email)
+
+    if not should_send:
+        return {
+            "email": email,
+            "status": "skipped",
+            "reason": reason
+        }
+
+    # Step 3: Generate AI reply
+    ai_message = generate_response(
+        email,
+        "whatsapp",   # keep same for now
+        "friendly"
+    )
+
+    # 🚫 WhatsApp DISABLED (for now)
+    return {
+        "email": email,
+        "ai_message": ai_message,
+        "status": "generated_only",
+        "reason": reason
     }
 
 @app.get("/full-automation")
