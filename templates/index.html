@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Messaging System</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🚀 AI Messaging System</h2>
+
+<button onclick="runAutomation()">Run Automation</button>
+
+<div class="card">
+    <h3>Email</h3>
+    <pre id="email"></pre>
+</div>
+
+<div class="card">
+    <h3>AI Reply</h3>
+    <pre id="reply"></pre>
+</div>
+
+<div class="card">
+    <h3>Status</h3>
+    <pre id="status"></pre>
+</div>
+
+<script>
+async function runAutomation() {
+    const res = await fetch("/smart-automation");
+    const data = await res.json();
+
+    document.getElementById("email").innerText = data.email;
+    document.getElementById("reply").innerText = data.ai_message || "";
+    document.getElementById("status").innerText = data.status + " - " + data.reason;
+}
+</script>
+
+</body>
+</html>

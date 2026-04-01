@@ -3,8 +3,13 @@ from pydantic import BaseModel
 from app.services.gmail_service import read_latest_email
 from app.services.ollama_service import generate_response
 from app.services.whatsapp_service import send_whatsapp_message
-#from app.services.whatsapp_service import send_whatsapp_message
 from app.utils.rules import should_reply
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+
+templates = Jinja2Templates(directory="templates")
+
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -13,9 +18,9 @@ class PromptRequest(BaseModel):
 
 app = FastAPI()
 
-@app.get("/")
-def home():
-    return {"message": "AI Messaging System Running"}
+#@app.get("/")
+#def home():
+    #return {"message": "AI Messaging System Running"}
 
 @app.post("/ask")
 def ask_ai(request: PromptRequest):
@@ -102,6 +107,10 @@ def full_automation():
         "status": "sent",
         "sid": sid
     }
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/auto-reply")
 def auto_reply():
